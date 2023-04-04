@@ -16,6 +16,12 @@ public interface WalletRepo extends JpaRepository<Wallet, String>{
 
     Optional<Wallet> findWalletByUuid (String uuid);
 
+    Optional<Wallet> findWalletByEuroWallet (String euroWallet);
+
+    Optional<Wallet> findWalletByUsdWallet (String usdWallet);
+
+    Optional<Wallet> findWalletByRubWallet (String rubWallet);
+
     @Transactional
     @Modifying(clearAutomatically = true)
     @Query( // вставляем данные в табл Wallet

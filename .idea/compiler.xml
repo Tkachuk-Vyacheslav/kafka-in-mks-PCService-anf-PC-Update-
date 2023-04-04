@@ -28,7 +28,7 @@
       <module name="ClientProfileLoader" options="-parameters" />
       <module name="ClientProfileNotification" options="-parameters" />
       <module name="ClientProfileRecognition" options="-parameters" />
-      <module name="ClientProfileService" options="-parameters" />
+      <module name="ClientProfileService" options="-parameters --add-modules java.base" />
       <module name="ClientProfileUpdate" options="-parameters" />
       <module name="ClientProfile_1" options="" />
     </option>

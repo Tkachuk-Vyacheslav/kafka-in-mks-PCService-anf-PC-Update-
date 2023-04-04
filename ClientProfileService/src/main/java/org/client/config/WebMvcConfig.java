@@ -1,11 +1,7 @@
 package org.client.config;
 
-import org.client.controller.AddressController;
-import org.client.controller.IndividualController;
-import org.client.controller.WalletController;
-import org.client.service.AddressService;
-import org.client.service.IndividualService;
-import org.client.service.WalletService;
+import org.client.controller.*;
+import org.client.service.*;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.CorsEndpointProperties;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
 import org.springframework.boot.actuate.autoconfigure.web.server.ManagementPortType;
@@ -35,6 +31,16 @@ public class WebMvcConfig {
     @Bean
     public AddressController addressController(AddressService addressService) {
         return new AddressController(addressService);
+    }
+
+    @Bean
+    public PassportController passportController(PassportService passportService) {
+        return new PassportController(passportService);
+    }
+
+    @Bean
+    public ContactController contactController(ContactService contactService) {
+        return new ContactController(contactService);
     }
 
     @Bean

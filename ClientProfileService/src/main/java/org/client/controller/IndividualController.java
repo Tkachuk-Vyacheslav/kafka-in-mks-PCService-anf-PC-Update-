@@ -28,14 +28,27 @@ public class IndividualController {
         this.individualService = individualService;
     }
 
+
+    @GetMapping("/getClientByWalletUuid/{uuid}")
+    @Operation(summary = "Информация о клиенте по walletUuid")
+    public ResponseEntity<IndividualDto> getClientByWalletUuid(HttpServletRequest request,
+                                                        @PathVariable(value="uuid") String uuid) {
+//        try {
+//            authUtil.checkAuth(request);
+//        } catch (HttpClientErrorException e) {
+//            return ResponseEntity.status(401).build();
+//        }
+        return new ResponseEntity<>(individualService.getClientByWalletUuid(uuid), HttpStatus.OK);
+    }
+
     @GetMapping("/getAll")
     @Operation(summary = "находим всех пользователей")
     public ResponseEntity<List<IndividualDto>> getAll(HttpServletRequest request) {
-        try {
-            authUtil.checkAuth(request);
-        } catch (HttpClientErrorException e) {
-            return ResponseEntity.status(401).build();
-        }
+//        try {
+//            authUtil.checkAuth(request);
+//        } catch (HttpClientErrorException e) {
+//            return ResponseEntity.status(401).build();
+//        }
         return new ResponseEntity<>(individualService.getAll(), HttpStatus.OK);
     }
 
@@ -49,7 +62,7 @@ public class IndividualController {
 //            return ResponseEntity.status(401).build();
 //        }
         IndividualDto individualDto = individualService.getClient(icp);
-        individualService.checkIsArchived(individualDto);
+        //individualService.checkIsArchived(individualDto);
         return new ResponseEntity<>(individualDto, HttpStatus.OK);
     }
 
@@ -61,11 +74,7 @@ public class IndividualController {
 //        } catch (HttpClientErrorException e) {
 //            return ResponseEntity.status(401).build();
 //        }
-        individualService.updateClientIfArchived(dto);
-//        individualService.addClient(dto.getIcp(),  dto.getContactsUuid(),
-//                dto.getDocumentsUuid(), dto.getRfPassportUuid(), dto.getBirthDate(), dto.getCountryOfBirth(),
-//                dto.getFullName(), dto.getGender(), dto.getName(), dto.getPatronymic(),
-//                dto.getPlaceOfBirth(), dto.getSurname());
+       // individualService.updateClientIfArchived(dto);
         individualService.addClient(dto);
         return ResponseEntity.status(201).build();
     }
@@ -74,37 +83,49 @@ public class IndividualController {
     @Operation(summary = "Информация о клиенте по номеру телефона")
     public ResponseEntity<IndividualDto> getByPhonenumber(HttpServletRequest request,
                                                           @PathVariable(value="value") String value) {
-        try {
-            authUtil.checkAuth(request);
-        } catch (HttpClientErrorException e) {
-            return ResponseEntity.status(401).build();
-        }
+//        try {
+//            authUtil.checkAuth(request);
+//        } catch (HttpClientErrorException e) {
+//            return ResponseEntity.status(401).build();
+//        }
         return new ResponseEntity<>(individualService.getClientByPhoneNum(value), HttpStatus.OK);
     }
 
-    @PutMapping("/edit")
+    @GetMapping("/getClientByPasspUuid/{uuid}")
+    @Operation(summary = "Информация о клиенте по passportUuid")
+    public ResponseEntity<IndividualDto> getByPasspUuid(HttpServletRequest request,
+                                                          @PathVariable(value="uuid") String uuid) {
+//        try {
+//            authUtil.checkAuth(request);
+//        } catch (HttpClientErrorException e) {
+//            return ResponseEntity.status(401).build();
+//        }
+        return new ResponseEntity<>(individualService.getClientByPasspUuid(uuid), HttpStatus.OK);
+    }
+
+    @PutMapping("/edit/{uuid}")
     @Operation(summary = "редактирование информации о клиенте")
-    public ResponseEntity<Void> editIndividual(@RequestBody IndividualDto dto, HttpServletRequest request) {
-        try {
-            authUtil.checkAuth(request);
-        } catch (HttpClientErrorException e) {
-            return ResponseEntity.status(401).build();
-        }
-        individualService.editClient(dto.getIcp(), dto.getBirthDate(), dto.getCountryOfBirth(),
-                dto.getFullName(), dto.getGender(), dto.getName(), dto.getPatronymic(),
-                dto.getPlaceOfBirth(), dto.getSurname());
+    public ResponseEntity<Void> editIndividual(@RequestBody IndividualDto dto, @PathVariable(value="uuid") String uuid,
+                                               HttpServletRequest request) {
+//        try {
+//            authUtil.checkAuth(request);
+//        } catch (HttpClientErrorException e) {
+//            return ResponseEntity.status(401).build();email
+//        }
+        individualService.editClient(dto, uuid);
         return ResponseEntity.status(200).build();
     }
 
-    @PostMapping("/delete")  //post запрос с icp клиента в  теле
-    @Operation(summary = "удаление клиента по icp клиента")
-    public ResponseEntity<Void> deleteIndividual(@RequestBody IndividualDto dto, HttpServletRequest request) {
-        try {
-            authUtil.checkAuth(request);
-        } catch (HttpClientErrorException e) {
-            return ResponseEntity.status(401).build();
-        }
-        individualService.deleteIndivid(dto.getIcp());
+    @PostMapping("/delete/{uuid}")  //post запрос с uuid клиента в  теле
+    @Operation(summary = "удаление клиента по uuid клиента")
+    public ResponseEntity<Void> deleteIndividual(@RequestBody IndividualDto dto , @PathVariable(value="uuid") String uuid,
+                                                 HttpServletRequest request) {
+//        try {
+//            authUtil.checkAuth(request);
+//        } catch (HttpClientErrorException e) {
+//            return ResponseEntity.status(401).build();
+//        }
+        individualService.deleteIndivid(dto.getUuid(), uuid);
         return ResponseEntity.status(200).build();
     }
 

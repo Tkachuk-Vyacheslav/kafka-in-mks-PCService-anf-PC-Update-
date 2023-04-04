@@ -51,7 +51,7 @@ public class AddressController {
     }
 
     @PostMapping("/delete")  //post запрос с zipcode адреса в  теле
-    @Operation(summary = "удаление адреса по zipcode")
+    @Operation(summary = "удаление адреса по zipcode") //????? uuid!!!!!!
     public ResponseEntity<Void> deleteAddressByZip(@RequestBody AddressDto dto) {
 
         addressService.deleteAddress(dto.getZipCode());

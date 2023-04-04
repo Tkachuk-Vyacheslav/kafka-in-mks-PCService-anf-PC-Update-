@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -18,11 +19,12 @@ public class WalletController {
 
     public WalletController(WalletService walletService){this.walletService = walletService;}
 
-    @PostMapping("/create")
+    @PostMapping("/create/{icp}")
     @Operation(summary = "Создание нового кошелька и его привязка к пользователю по icp пользователя")
-    public void createAddress(@RequestBody WalletDto dto) {
+    public ResponseEntity<String> createAddress(@Valid @RequestBody WalletDto dto, @PathVariable(value="icp") String icp) throws Exception {
         walletService.addWalletForClient(dto.getEuroWallet(), dto.getRubWallet(), dto.getUsdWallet(),
-                dto.getIndividualIcp());
+                dto.getIndividualIcp(), icp);
+        return ResponseEntity.ok("Wallet  was created successfully!");
     }
 
     @GetMapping("/getAll")
@@ -35,24 +37,24 @@ public class WalletController {
     @GetMapping("/getWalletByClientIcp/{icp}")
     @Operation(summary = "Информация о кошельке по icp клиента")
     public ResponseEntity<List<WalletDto>> getWalletByClientIcp(@Parameter(description = "icp") String Icp,
-                                                              @PathVariable(value="icp") String icp) {
+                                                              @PathVariable(value="icp") String icp) throws Exception {
         return new ResponseEntity<>(walletService.getWalletByIcp(icp), HttpStatus.OK);
     }
 
-    @PutMapping("/edit")
+    @PutMapping("/edit/{uuid}")
     @Operation(summary = "редактирование кошелька по его uuid")
-    public ResponseEntity<Void> editWalletByUuid(@RequestBody WalletDto dto) {
+    public ResponseEntity<String> editWalletByUuid(@Valid @RequestBody WalletDto dto, @PathVariable(value="uuid") String uuidFromparam) throws Exception {
 
-        walletService.editWallet(dto.getUuid(),dto.getIndividualUuid(), dto.getRubWallet(), dto.getEuroWallet(), dto.getUsdWallet());
-        return ResponseEntity.status(200).build();
+        walletService.editWallet(dto.getUuid(),dto.getIndividualUuid(), dto.getRubWallet(), dto.getEuroWallet(), dto.getUsdWallet(), uuidFromparam);
+        return ResponseEntity.ok("wallet  was updated successfully!");
     }
 
-    @PostMapping("/delete")  //post запрос с walletuuid в  теле
+    @PostMapping("/delete/{uuid}")  //post запрос с walletuuid в  теле
     @Operation(summary = "удаление кошелька по walletuuid")
-    public ResponseEntity<Void> deleteWalletByUuid(@RequestBody WalletDto dto) {
+    public ResponseEntity<String> deleteWalletByUuid(@RequestBody WalletDto dto, @PathVariable(value="uuid") String uuidFromparam) throws Exception {
 
-        walletService.deleteWallet(dto.getUuid());
-        return ResponseEntity.status(200).build();
+        walletService.deleteWallet(dto.getUuid(), uuidFromparam);
+        return ResponseEntity.ok("wallet  was deleted !");
     }
 
 }

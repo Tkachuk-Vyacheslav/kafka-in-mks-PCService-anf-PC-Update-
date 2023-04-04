@@ -13,7 +13,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @SpringBootApplication
 @EnableWebMvc
 @Slf4j
-
 public class MainApp
 {
     public static void main(String[] args) {
