@@ -4,12 +4,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.client.common.util.AuthUtil;
 import org.client.common.dto.IndividualDto;
-
 import org.client.service.IndividualService;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
-
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -21,13 +18,11 @@ public class IndividualController {
 
     private AuthUtil authUtil = new AuthUtil();
 
-
     private final IndividualService individualService;
 
     public IndividualController(IndividualService individualService) {
         this.individualService = individualService;
     }
-
 
     @GetMapping("/getClientByWalletUuid/{uuid}")
     @Operation(summary = "Информация о клиенте по walletUuid")
@@ -54,8 +49,7 @@ public class IndividualController {
 
     @GetMapping("/getClientByIcp/{icp}")
     @Operation(summary = "Информация о клиенте по ICP")
-    public ResponseEntity<IndividualDto> getByIcp(
-                                                  @PathVariable(value="icp") String icp) {
+    public ResponseEntity<IndividualDto> getByIcp(@PathVariable(value="icp") String icp) {
 //        try {
 //            authUtil.checkAuth(request);
 //        } catch (HttpClientErrorException e) {

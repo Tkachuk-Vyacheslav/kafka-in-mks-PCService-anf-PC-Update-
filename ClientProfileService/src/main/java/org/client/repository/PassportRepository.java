@@ -3,7 +3,6 @@ package org.client.repository;
 import org.client.common.entity.RFPassport;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.Optional;
 

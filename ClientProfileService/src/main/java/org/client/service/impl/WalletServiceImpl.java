@@ -15,12 +15,10 @@ import org.client.service.IndividualService;
 import org.client.service.WalletService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-
 
 @AllArgsConstructor
 public class WalletServiceImpl implements WalletService {
@@ -172,6 +170,5 @@ public class WalletServiceImpl implements WalletService {
             throw new IncorrectRequestException(" uuid  в теле запроса и параметре должны быть одинаковы");
         }
     }
-
 
 }

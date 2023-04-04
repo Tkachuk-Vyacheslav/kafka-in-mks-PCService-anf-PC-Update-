@@ -13,7 +13,6 @@ import org.client.util.IndividualUtils;
 import org.client.util.PassportUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -92,8 +91,5 @@ public class PassportServiseImpl implements PassportService {
         }
 
     }
-
-
-
 
 }

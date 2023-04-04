@@ -1,7 +1,5 @@
 package org.client.config;
 
-//import org.client.service.*;
-//import org.client.service.impl.*;
 import org.client.service.AddressService;
 import org.client.service.IndividualService;
 import org.client.service.PassportService;

@@ -12,7 +12,6 @@ import org.client.util.ClientAlreadyExistsException;
 import org.client.util.IndividualUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -99,8 +98,6 @@ public class IndividualServiceImpl implements IndividualService {
         } else if(dto.getDocumentsUuid() != null) {
             individualRepository.rewriteIndividDocumUuid(dto.getDocumentsUuid(), dto.getUuid());
         }
-
-
     }
 
     @Override //удалить пользователя по uuid
@@ -135,8 +132,6 @@ public class IndividualServiceImpl implements IndividualService {
         } catch (NullPointerException e) {
         }
     }
-
-
 
     public void checkIsArchived(IndividualDto individualDto) {
         log.info(String.format("checking if user archived %s", individualDto));

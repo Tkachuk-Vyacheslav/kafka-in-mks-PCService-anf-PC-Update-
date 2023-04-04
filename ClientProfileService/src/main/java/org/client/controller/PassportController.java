@@ -1,20 +1,12 @@
 package org.client.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import org.client.common.dto.IndividualDto;
 import org.client.common.dto.RFPassportDto;
-import org.client.common.dto.WalletDto;
-import org.client.service.IndividualService;
 import org.client.service.PassportService;
-import org.client.service.WalletService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
-
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -22,7 +14,6 @@ import java.util.List;
 public class PassportController {
 
     private final PassportService passportService;
-
 
     public PassportController(PassportService passportService){this.passportService = passportService;}
 

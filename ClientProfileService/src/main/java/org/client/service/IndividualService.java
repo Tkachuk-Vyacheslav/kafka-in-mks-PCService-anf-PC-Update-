@@ -3,15 +3,12 @@ package org.client.service;
 import org.client.common.dto.IndividualDto;
 import org.client.common.entity.Individual;
 import org.springframework.stereotype.Service;
-
-
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+
 @Service
 public interface IndividualService {
-
-
 
     IndividualDto getClientByPasspUuid(String passpUuid);
 

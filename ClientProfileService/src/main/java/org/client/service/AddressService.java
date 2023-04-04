@@ -3,7 +3,6 @@ package org.client.service;
 import org.client.common.dto.AddressDto;
 import org.client.common.dto.IndividualDto;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service
