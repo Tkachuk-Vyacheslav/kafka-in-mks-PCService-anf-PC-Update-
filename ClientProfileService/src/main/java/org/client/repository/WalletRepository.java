@@ -1,4 +1,4 @@
-package org.client.repo;
+package org.client.repository;
 
 import org.client.common.entity.*;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface WalletRepo extends JpaRepository<Wallet, String>{
+public interface WalletRepository extends JpaRepository<Wallet, String>{
 
     Optional<Wallet> findWalletByUuid (String uuid);
 

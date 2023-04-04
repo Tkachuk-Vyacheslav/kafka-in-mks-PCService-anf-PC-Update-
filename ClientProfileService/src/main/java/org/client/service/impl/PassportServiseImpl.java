@@ -5,8 +5,8 @@ import org.client.Exception.NotFoundException;
 import org.client.common.dto.RFPassportDto;
 import org.client.common.entity.Individual;
 import org.client.common.entity.RFPassport;
-import org.client.repo.IndividualRepo;
-import org.client.repo.PassportRepo;
+import org.client.repository.IndividualRepository;
+import org.client.repository.PassportRepository;
 import org.client.service.IndividualService;
 import org.client.service.PassportService;
 import org.client.util.IndividualUtils;
@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class PassportServiseImpl implements PassportService {
@@ -25,9 +24,9 @@ public class PassportServiseImpl implements PassportService {
     @Autowired
     private PassportUtils passportUtils;
     @Autowired
-    private IndividualRepo individualRepo;
+    private IndividualRepository individualRepository;
     @Autowired
-    private PassportRepo passportRepo;
+    private PassportRepository passportRepository;
 
     private final IndividualService individualService;
 
@@ -39,15 +38,15 @@ public class PassportServiseImpl implements PassportService {
     @Override
     public void addPassport(RFPassportDto rfPassportDto) {
         RFPassport rfPassport = passportUtils.convertToEntity(rfPassportDto);
-        passportRepo.save(rfPassport);
+        passportRepository.save(rfPassport);
     }
 
     @Override
     public List<RFPassportDto> getPassporstByIcp(String icp) {
-        Individual individual = individualRepo.findIndividualByIcp(icp).orElse(new Individual()); // находим  клиента
+        Individual individual = individualRepository.findIndividualByIcp(icp).orElse(new Individual()); // находим  клиента
 
         //находим лист паспортов клиента
-        List<RFPassport> rfPassportList =  passportRepo.findRFPassportByIndividualUuid(individual.getUuid()).orElse(new ArrayList<>());
+        List<RFPassport> rfPassportList =  passportRepository.findRFPassportByIndividualUuid(individual.getUuid()).orElse(new ArrayList<>());
 
         List<RFPassportDto> rfPassportDtoList = new ArrayList<>();
 
@@ -62,7 +61,7 @@ public class PassportServiseImpl implements PassportService {
     @Override
     public void editRfpassport(RFPassportDto dto, String paspUuid) {
         // находим паспорт клиента по Uuid паспорта
-        RFPassport rfPassport = passportRepo.findRFPassportByUuid(paspUuid).orElse(new RFPassport());
+        RFPassport rfPassport = passportRepository.findRFPassportByUuid(paspUuid).orElse(new RFPassport());
 
         if(rfPassport.getUuid() == null)
             throw new NotFoundException("не найдено паспорта с таким uuid");
@@ -70,7 +69,7 @@ public class PassportServiseImpl implements PassportService {
             //проверка, что не ошиблись с Uuid паспорта в параметрах или теле запроса
             if (dto.getUuid().equals(paspUuid)) {
                 RFPassport rfPassport_ = passportUtils.convertToEntity(dto);
-                passportRepo.save(rfPassport_);
+                passportRepository.save(rfPassport_);
             } else {
                 throw new IncorrectRequestException("! в теле запроса или впараметрах указан неправильный uuid клиента!");
             }
@@ -81,13 +80,13 @@ public class PassportServiseImpl implements PassportService {
     @Override //удалить пасспорт по uuid passp
     public void deletePassport(RFPassportDto dto, String paspUuid) {
         // находим паспорт клиента по Uuid паспорта
-        RFPassport rfPassport = passportRepo.findRFPassportByUuid(paspUuid).orElse(new RFPassport());
+        RFPassport rfPassport = passportRepository.findRFPassportByUuid(paspUuid).orElse(new RFPassport());
         if(rfPassport.getUuid() == null)
             throw new NotFoundException("не найдено паспорта с таким uuid");
 
         //проверка, что не ошиблись с Uuid паспорта в параметрах или теле запроса
         if (dto.getUuid().equals(paspUuid)) {
-            passportRepo.deleteById(paspUuid);
+            passportRepository.deleteById(paspUuid);
         } else {
             throw new IncorrectRequestException("! в теле запроса или впараметрах указан неправильный uuid клиента!");
         }

@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 import org.client.common.dto.AddressDto;
 import org.client.common.dto.IndividualDto;
 import org.client.common.entity.*;
-import org.client.repo.AddressRepo;
-import org.client.repo.IndividualRepo;
+import org.client.repository.AddressRepository;
+import org.client.repository.IndividualRepository;
 import org.client.service.AddressService;
 import org.client.service.IndividualService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +20,10 @@ public class AddressServiceImpl implements AddressService {
     private final IndividualService individualService;
 
     @Autowired
-    AddressRepo addressRepo;
+    AddressRepository addressRepository;
 
     @Autowired
-    IndividualRepo individualRepo;
+    IndividualRepository individualRepository;
 
     public AddressServiceImpl(IndividualService individualService) {
         this.individualService = individualService;
@@ -32,12 +32,12 @@ public class AddressServiceImpl implements AddressService {
     @Override //Создание нового адреса и его привязка к пользователю по icp пользователя
     public void addAddressForClient(String individualIcp, String addressName, String notFormAddrName, String country, String zipCode) {
 
-        Individual individual = individualRepo.findIndividualByIcp(individualIcp).orElse(new Individual());
+        Individual individual = individualRepository.findIndividualByIcp(individualIcp).orElse(new Individual());
 
         String adrUuid = UUID.randomUUID().toString();
 
-        addressRepo.insertAddrToTableAddr(adrUuid, addressName, country, notFormAddrName, zipCode);
-        addressRepo.insertDataToTableIndivid_address(individual.getUuid() ,adrUuid);
+        addressRepository.insertAddrToTableAddr(adrUuid, addressName, country, notFormAddrName, zipCode);
+        addressRepository.insertDataToTableIndivid_address(individual.getUuid() ,adrUuid);
     }
 
 //    @Override
@@ -47,7 +47,7 @@ public class AddressServiceImpl implements AddressService {
 
     @Override //найти лист клиентов по адресу
     public List<IndividualDto> getClientByAddress(String zipCode) {
-        List<Individual> individualList = addressRepo.findByAddress(zipCode);
+        List<Individual> individualList = addressRepository.findByAddress(zipCode);
         List<IndividualDto> IndividualDtoList = new ArrayList<>();
 
         //для каждого элемента individualList создадим объект типа IndividualDto, и присвоим ему значения из элемента individualList.
@@ -65,7 +65,7 @@ public class AddressServiceImpl implements AddressService {
 
     @Override //найти лист адресов клиента по icp клиента
     public List<AddressDto> getAddressByClienticp(String icp) {
-        List<Address> address_list = addressRepo.findByIcp(icp);
+        List<Address> address_list = addressRepository.findByIcp(icp);
         List<AddressDto> AddressDtoList = new ArrayList<>();
 
         //для каждого элемента address_list создадим объект типа AddressDto, и присвоим ему значения из элемента address_list.
@@ -83,13 +83,13 @@ public class AddressServiceImpl implements AddressService {
     public void editAddress(String uuid, String notFormAddrName, String addressName, String country, String zipCode) {
         Address editaddress = Address.builder().uuid(uuid).notFormAddrName(notFormAddrName).addressName(addressName).
                 country(country).zipCode(zipCode).build();
-        addressRepo.save(editaddress);
+        addressRepository.save(editaddress);
     }
 
     @Override //удалить адрес по зипкод
     public void deleteAddress(String zipcode) {
-        Address address = addressRepo.findByZipCode(zipcode).orElse(new Address());
-        addressRepo.deleteById(address.getUuid());
+        Address address = addressRepository.findByZipCode(zipcode).orElse(new Address());
+        addressRepository.deleteById(address.getUuid());
     }
 
 }

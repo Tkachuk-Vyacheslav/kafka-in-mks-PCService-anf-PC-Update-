@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.client.Exception.IncorrectRequestException;
 import org.client.common.dto.IndividualDto;
 import org.client.common.entity.*;
-import org.client.repo.IndividualRepo;
+import org.client.repository.IndividualRepository;
 import org.client.service.IndividualService;
 import org.client.util.ArchivedClientException;
 import org.client.util.ClientAlreadyExistsException;
@@ -14,9 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -26,7 +24,7 @@ public class IndividualServiceImpl implements IndividualService {
     @Autowired
     private IndividualUtils individualUtils;
     @Autowired
-    private IndividualRepo individualRepo;
+    private IndividualRepository individualRepository;
 
     public IndividualServiceImpl() {
     }
@@ -36,24 +34,24 @@ public class IndividualServiceImpl implements IndividualService {
     // добавить клиента
     public void addClient(IndividualDto individualDto) {
         Individual individual = individualUtils.convertToEntity(individualDto);
-        individualRepo.save(individual);
+        individualRepository.save(individual);
     }
 
     @Override
     public IndividualDto getClientByPasspUuid(String passpUuid) {
-        Individual individual = individualRepo.findCleintByPasspuuid(passpUuid);
+        Individual individual = individualRepository.findCleintByPasspuuid(passpUuid);
         return individualUtils.convertToDto(individual);
     }
 
     @Override //получить информацию о клиенте по icp
     public IndividualDto getClient(String icp) {
-        Individual i = individualRepo.findIndividualByIcp(icp).orElse(new Individual());
+        Individual i = individualRepository.findIndividualByIcp(icp).orElse(new Individual());
         return individualUtils.convertToDto(i);
     }
 
     @Override //получить всех клиентов
     public List<IndividualDto> getAll() {
-        List<Individual> individualList = individualRepo.findAll();
+        List<Individual> individualList = individualRepository.findAll();
         List<IndividualDto> individualDtoList = new ArrayList<>();
 
         // кажд элемент из individualList преобразуем в дто
@@ -66,14 +64,14 @@ public class IndividualServiceImpl implements IndividualService {
 
     @Override //найти клиента (icp, name, uuid) по номеру телефона
     public IndividualDto getClientByPhoneNum(String value) {
-        Individual individual = individualRepo.findByPhNum(value);
-        Individual individual1 = individualRepo.findAllFieldsByUuid(individual.getUuid());
+        Individual individual = individualRepository.findByPhNum(value);
+        Individual individual1 = individualRepository.findAllFieldsByUuid(individual.getUuid());
         return individualUtils.convertToDto(individual1);
     }
 
     @Override // найти клиента по walletUuid
     public IndividualDto getClientByWalletUuid(String walletUuid) {
-        Individual individual = individualRepo.findCleintByWalletUuid(walletUuid);
+        Individual individual = individualRepository.findCleintByWalletUuid(walletUuid);
 
         return individualUtils.convertToDto(individual);
     }
@@ -85,21 +83,21 @@ public class IndividualServiceImpl implements IndividualService {
         if(!dto.getUuid().equals(clientUuid)) {
             throw new IncorrectRequestException("uuid  в теле запроса и параметрах должны быь одинаковы");
         }
-        Individual userFromDB = individualRepo.findIndividualByUuid(dto.getUuid()).orElse(new Individual()); //нашли пользователя в базе по uuid client
+        Individual userFromDB = individualRepository.findIndividualByUuid(dto.getUuid()).orElse(new Individual()); //нашли пользователя в базе по uuid client
 
         //переприсваиваем пользователю поля (значения из запроса в постмэне)
         userFromDB = Individual.builder().icp(dto.getIcp()).uuid(clientUuid).birthDate(dto.getBirthDate()).
                 countryOfBirth(dto.getCountryOfBirth()).fullName(dto.getFullName()).gender(dto.getGender()).name(dto.getName()).
                 patronymic(dto.getPatronymic()).placeOfBirth(dto.getPlaceOfBirth()).surname(dto.getSurname()).build();
 
-        individualRepo.save(userFromDB); //сохраняем юзера (пока без uuid для контактов, документов
+        individualRepository.save(userFromDB); //сохраняем юзера (пока без uuid для контактов, документов
 
         // перезапишем uuid документов и контактов в табл индивидуал (если они есть). Если их не указать в дто, то в табл запишется null !!
         // если же не указать в дто клиента пасспорт, адрес и проч , то эти данные у индивидуала сохранятся (прежние)
         if(dto.getContactsUuid() != null){
-            individualRepo.rewriteIndividContactUuid(dto.getContactsUuid(), dto.getUuid());
+            individualRepository.rewriteIndividContactUuid(dto.getContactsUuid(), dto.getUuid());
         } else if(dto.getDocumentsUuid() != null) {
-            individualRepo.rewriteIndividDocumUuid(dto.getDocumentsUuid(), dto.getUuid());
+            individualRepository.rewriteIndividDocumUuid(dto.getDocumentsUuid(), dto.getUuid());
         }
 
 
@@ -110,7 +108,7 @@ public class IndividualServiceImpl implements IndividualService {
         if(!clientFromBodyUuid.equals(uuidFromParam))
             throw new IncorrectRequestException("uuid  в теле запроса и параметрах должны быtь одинаковы");
 
-        individualRepo.deleteById(uuidFromParam);
+        individualRepository.deleteById(uuidFromParam);
     }
 
     @Transactional
@@ -121,7 +119,7 @@ public class IndividualServiceImpl implements IndividualService {
                 filter(passport -> passport.getPassportStatus().equals("active")).collect(Collectors.toList()).get(0);
         Individual archivedClient = null;
         try {
-            archivedClient = individualRepo.findIndividualByIcp(individual.getIcp()).orElse(new Individual());
+            archivedClient = individualRepository.findIndividualByIcp(individual.getIcp()).orElse(new Individual());
             if (archivedClient.getIcp().equals(individual.getIcp())) {
                 throw new ClientAlreadyExistsException("Client already exists");
             }
@@ -129,11 +127,11 @@ public class IndividualServiceImpl implements IndividualService {
             //ignore
         }
         try {
-            archivedClient = individualRepo.findByPassport(activePassport.getSeries(), activePassport.getNumber());
+            archivedClient = individualRepository.findByPassport(activePassport.getSeries(), activePassport.getNumber());
             archivedClient.setArchived(true);
             archivedClient.setActualIcp(individual.getIcp());
             log.info(String.format("marking archived client %s", archivedClient));
-            individualRepo.save(archivedClient);
+            individualRepository.save(archivedClient);
         } catch (NullPointerException e) {
         }
     }

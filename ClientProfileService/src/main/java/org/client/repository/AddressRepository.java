@@ -1,4 +1,4 @@
-package org.client.repo;
+package org.client.repository;
 
 import org.client.common.entity.*;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface AddressRepo extends JpaRepository<Address, String>{
+public interface AddressRepository extends JpaRepository<Address, String>{
 
     Optional<Address> findByUuid(String uuid);
     Optional<Address> findByZipCode(String zipcode);
