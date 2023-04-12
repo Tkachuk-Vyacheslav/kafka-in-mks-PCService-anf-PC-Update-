@@ -2,20 +2,27 @@ package org.client.service;
 
 import org.client.common.dto.AddressDto;
 import org.client.common.dto.IndividualDto;
+import org.client.common.dto.MoneyTransferDto;
 import org.client.common.dto.WalletDto;
+import org.client.common.dto.Wallets.RubWalletDto;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
 public interface WalletService {
 
-    void addWalletForClient(String euroWallet, String rubWallet, String usdWallet, String individualIcp, String icpFromParam) throws Exception;
+    void addWalletForClient(WalletDto dto, String individualIcp, String icpFromParam) throws Exception;
 
     List<WalletDto> getAll();
 
-    List<WalletDto> getWalletByIcp(String icp) throws Exception;
+    List<Object> getWalletByIcp(String icp) throws Exception;
 
-    void editWallet(String uuid, String individualUuid, String rubWallet, String euroWallet, String usdWallet, String uuidFromParam) throws Exception;
+    void editWallet(WalletDto dto, String icpFromParam) throws Exception;
+
+    void editWalletRub(RubWalletDto dto, String icpFromParam) throws Exception;
 
     void deleteWallet(String uuid, String uuidFromParam) throws Exception;
+
+    void moneyTransfer(MoneyTransferDto dto, Long icp);
 }
