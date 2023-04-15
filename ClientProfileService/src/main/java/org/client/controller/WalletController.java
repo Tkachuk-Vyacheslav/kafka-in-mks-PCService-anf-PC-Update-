@@ -32,13 +32,6 @@ public class WalletController {
         return ResponseEntity.ok("Wallet  was created successfully!");
     }
 
-    @GetMapping("/getAll")
-    @Operation(summary = "находим все кошельки")
-    public ResponseEntity<List<WalletDto>> getAllWallets() {
-
-        return new ResponseEntity<>(walletService.getAll(), HttpStatus.OK);
-    }
-
     @GetMapping("/getWalletByClientIcp/{icp}")
     @Operation(summary = "Информация о кошельке по icp клиента")
     public ResponseEntity<List<Object>> getWalletByClientIcp(@Parameter(description = "icp") String Icp,

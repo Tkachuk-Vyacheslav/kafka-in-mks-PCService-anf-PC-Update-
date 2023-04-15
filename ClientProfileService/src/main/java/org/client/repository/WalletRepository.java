@@ -35,6 +35,10 @@ public interface WalletRepository extends JpaRepository<WalletMedium, String>{
     @Query(value = "from WalletMedium as wallmed join fetch wallmed.individual as indiv where indiv.icp = :icp")
     WalletMedium findWalletMediumByClientIcp(String icp);
 
+    //find Optional walletMedium by client icp
+    @Query(value = "from WalletMedium as wallmed join fetch wallmed.individual as indiv where indiv.icp = :icp")
+    Optional<WalletMedium> findWalletMediumByClientIcpOptional(String icp);
+
 //    //find eurWallet by client icp
 //    @Query(value = "from EuroWallet as eurow join fetch eurow.walletMedium as wallmed join fetch wallmed.individual as indiv where indiv.icp = :icp")
 //    EuroWallet findWEuroWalletByClientIcp(String icp);

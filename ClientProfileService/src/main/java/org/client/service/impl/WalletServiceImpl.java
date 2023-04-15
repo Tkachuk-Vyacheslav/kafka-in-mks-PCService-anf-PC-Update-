@@ -121,9 +121,6 @@ public class WalletServiceImpl implements WalletService {
                 rubWallet.chars().allMatch(Character::isDigit) == false)
             throw new IncorrectRequestException("uuid кошельков должны состоять только из цифр");
 
-        //заполнили табл сущности WalletMedium (то есть, создадим объект WalletMedium)// ВСЕ ЗАПОЛНЯЕМ АЙДИШНИКАМИ!
-        // walletRepository.createWalletMedium(walletMediumUuid, euroWallet, rubWallet, usdWallet);
-
         WalletMedium walletMedium = new WalletMedium(); // = walletRepository.findWalletByUuid(walletMediumUuid).orElse(new WalletMedium());
 
         // передадим нашему объекту WalletMedium клиента
@@ -148,27 +145,6 @@ public class WalletServiceImpl implements WalletService {
         individual.setWallets(walletMedium);
         individualRepository.save(individual);
 
-
-    }
-
-    @Override //получить все кошельки
-    public List<WalletDto> getAll() {
-//        try {
-//            List<WalletMedium> walletMediumList = walletRepository.findAll();
-//            List<WalletDto> walletDtoList = new ArrayList<>();
-//
-//            //для каждого элемента walletList создадим объект типа WalletDto, и присвоим ему значения из элемента walletList.
-//            // Потом  - поместим этот объект в лист walletDtoList
-//            for (WalletMedium w : walletMediumList) {
-//              //  WalletDto walletDto = WalletDto.builder().uuid(w.getUuid()).individualIcp(walletRepository.findClientByWalletId(w.getUuid()).getIcp()).
-//                   //     rubWallet(w.getRubWallet()).euroWallet(w.getEuroWallet()).usdWallet(w.getUsdWallet()).individualUuid(w.getIndividual().getUuid()).build();
-//               // walletDtoList.add(walletDto);
-//            }
-//            return walletDtoList;
-//        } catch (NullPointerException e) {
-//            throw new NotFoundException("Не найдено ни одного wallet");
-//        }
-        return null;
     }
 
     @Override //найти кошельки клиента по его icp
@@ -179,7 +155,6 @@ public class WalletServiceImpl implements WalletService {
         } else if (individualRepository.findIndividualByIcp(icp).orElse(new Individual()).getUuid() == null) {
             throw new NotFoundException("Клиентов с таким  icp не существует");
         }
-
 
         // получим кошельки клиента (руб, евро, доллар)
         EuroWallet euroWallet = euroWalletRepository.findEuroWallByClientIcp(icp);
@@ -192,9 +167,6 @@ public class WalletServiceImpl implements WalletService {
         UsdWalletDto usdWalletDto = UsdWalletDto.builder().currency(Сurrency.USD).uuid(usdWallet.getUuid()).value(usdWallet.getValue()).build();
 
         List<Object> list = new ArrayList<>();
-//        list.add(euroWalletDto);
-//        list.add(rubWalletDto);
-//        list.add(usdWalletDto);
 
         WalletDto walletDto = new WalletDto();
         walletDto.setEuroWalletDto(euroWalletDto);
@@ -207,7 +179,6 @@ public class WalletServiceImpl implements WalletService {
 
     }
 
-
     @Override //удалить кошелек по uuid
     public void deleteWallet(String uuid, String uuidFromParam) throws Exception {
         if (walletRepository.findWalletByUuid(uuid).orElse(new WalletMedium()).getUuid() == null) {
@@ -219,15 +190,34 @@ public class WalletServiceImpl implements WalletService {
         }
     }
 
+    // перевод средств по номеру телефона
     @Override
-    public void moneyTransfer(MoneyTransferDto dto, Long icpFromParam) {
+    public String moneyTransfer(MoneyTransferDto dto, Long icpFromParam) {
+        String success = "the transaction was successful";
+        String failure = "the transaction failed";
+        String notEnoughMoney = " не достаточно средств для перевода";
+
         if (icpFromParam != Long.parseLong(dto.getIcp()))
             throw new IncorrectRequestException(" icp  в теле запроса и параметре должны быть одинаковы");
 
-        // find client by phonenum accepter
-        Individual clientAccepter = individualRepository.findByPhNum(dto.getPhonenumber());
+        // find acceptor by phonenumber
+        Individual clientAccepter = individualRepository.findByPhNumOptional(dto.getPhonenumber()).orElse(new Individual());
+        if (clientAccepter.getUuid() == null)
+            throw new IncorrectRequestException(" не найден получатель средств по такому тлф");
 
-        System.out.println(dto.getCurrency() + "   @@@@@@");
+        // find sender by phonenumber
+        Individual clientSender = individualRepository.findIndividualByIcp(dto.getIcp()).orElse(new Individual());
+        if (clientAccepter.getUuid() == null)
+            throw new IncorrectRequestException(" не найден отправитель средств по такому тлф");
+
+        //проверим, есть ли у них кошельки
+        WalletMedium walletMediumSender = walletRepository.findWalletMediumByClientIcpOptional(dto.getIcp()).orElse(new WalletMedium());
+        if (walletMediumSender.getUuid() == null)
+            throw new IncorrectRequestException(" не найден кошелек для этого отправителя средств ");
+
+        WalletMedium walletMediumAccepter = walletRepository.findWalletMediumByClientIcpOptional(clientAccepter.getIcp()).orElse(new WalletMedium());
+        if (walletMediumAccepter.getUuid() == null)
+            throw new IncorrectRequestException(" не найден кошелек для этого получателя средств ");
 
         if (dto.getCurrency().toString().equals("EURO")) {
 
@@ -244,15 +234,64 @@ public class WalletServiceImpl implements WalletService {
 
                 // найдем еврокошелек аксептера
                 EuroWallet accepterEuroWallet = euroWalletRepository.findEuroWallByClientIcp(clientAccepter.getIcp());
-                Double acceptEuroWalletValuePlusPayment = Double.parseDouble(accepterEuroWallet.getValue()) + Double.parseDouble(dto.getPayment()); // + payment
+                Double acceptEuroWalletValuePlusPayment = Double.parseDouble(accepterEuroWallet.getValue()) + Double.parseDouble(dto.getPayment()); // прибавим payment
                 accepterEuroWallet.setValue(Double.toString(acceptEuroWalletValuePlusPayment)); // send to accepterEuroWallet new value
                 euroWalletRepository.save(accepterEuroWallet);
+                return success;
             } else {
-                System.out.println(" недостаточно средств");
-                throw new IncorrectRequestException(" blablabla");
-
+                return notEnoughMoney;
             }
-        }
+
+        } else if (dto.getCurrency().toString().equals("RUB")) {   // if currency rub
+            //находим средства  на rub кошельке отправителя
+            String rubValueSender = rubWalletRepository.findRubWallByClientIcp(dto.getIcp()).getValue();
+            System.out.println(" @@@@ rub");
+            // достаточно ли средств для перевода?
+            if ((Double.parseDouble(rubValueSender) - Double.parseDouble(dto.getPayment())) >= 0) {
+                Double valueMinusPayment = Double.parseDouble(rubValueSender) - Double.parseDouble(dto.getPayment()); // найдем разницу
+
+                RubWallet senderRubWallet = rubWalletRepository.findRubWallByClientIcp(dto.getIcp()); // find rubwallet of sender
+                senderRubWallet.setValue(Double.toString(valueMinusPayment));   // перезапишем уменьшенную после перевода сумму rubкошельку отправителя
+                rubWalletRepository.save(senderRubWallet);  // сохраним-обновим rubкошелек отправителя
+
+                // найдем rubкошелек аксептера
+                RubWallet accepterRubWallet = rubWalletRepository.findRubWallByClientIcp(clientAccepter.getIcp());
+                Double acceptRubWalletValuePlusPayment = Double.parseDouble(accepterRubWallet.getValue()) + Double.parseDouble(dto.getPayment()); // прибавим payment
+                accepterRubWallet.setValue(Double.toString(acceptRubWalletValuePlusPayment)); // send to accepterEuroWallet new value
+                rubWalletRepository.save(accepterRubWallet);
+                return success;
+            }else {
+                return notEnoughMoney;
+            }
+
+        }else if (dto.getCurrency().toString().equals("USD")) { // if currency USD
+                    //находим средства  на usd кошельке отправителя
+                    String usdValueSender = usdWalletRepository.findUsdWallByClientIcp(dto.getIcp()).getValue();
+
+                    // достаточно ли средств для перевода?
+                    if ((Double.parseDouble(usdValueSender) - Double.parseDouble(dto.getPayment())) >= 0) {
+                        Double valueMinusPayment = Double.parseDouble(usdValueSender) - Double.parseDouble(dto.getPayment()); // найдем разницу
+
+                        UsdWallet senderUsdWallet = usdWalletRepository.findUsdWallByClientIcp(dto.getIcp()); // find wallet of sender
+                        senderUsdWallet.setValue(Double.toString(valueMinusPayment));   // перезапишем уменьшенную после перевода сумму rubкошельку отправителя
+                        usdWalletRepository.save(senderUsdWallet);  // сохраним-обновим кошелек отправителя
+
+                        // найдем кошелек аксептера
+                        UsdWallet accepterUsdWallet = usdWalletRepository.findUsdWallByClientIcp(clientAccepter.getIcp());
+                        Double acceptUsdWalletValuePlusPayment = Double.parseDouble(accepterUsdWallet.getValue()) + Double.parseDouble(dto.getPayment()); // прибавим payment
+                        accepterUsdWallet.setValue(Double.toString(acceptUsdWalletValuePlusPayment)); // send to accepterWallet new value
+                        usdWalletRepository.save(accepterUsdWallet);
+                        return success;
+                    } else {
+                        return notEnoughMoney;
+                    }
+                }
+                return failure;
+            }
+
+
+
+
 
     }
 
@@ -260,24 +299,3 @@ public class WalletServiceImpl implements WalletService {
 
 
 
-
-
-}
-
-//    // получим кошельки клиента (руб, евро, доллар), переприсвоим им значения
-//    EuroWallet euroWallet =  euroWalletRepository.findEuroWallByClientIcp(icp);
-//        euroWallet.setValue(dto.getEuroWalletDto().getValue());
-//
-//                RubWallet rubWallet = rubWalletRepository.findRubWallByClientIcp(icp);
-//                rubWallet.setValue(dto.getRubWalletDto().getValue());
-//
-//                UsdWallet usdWallet = usdWalletRepository.findUsdWallByClientIcp(icp);
-//                usdWallet.setValue(dto.getUsdWalletDto().getValue());
-//
-//                // get them walletMedium
-//                WalletMedium walletMedium = walletRepository.findWalletMediumByClientIcp(icp);
-//                walletMedium.setEuroWallets(euroWallet);
-//                walletMedium.setUsdWallets(usdWallet);
-//                walletMedium.setRubWallets(rubWallet);
-//
-//                walletRepository.save(walletMedium);

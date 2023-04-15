@@ -14,8 +14,6 @@ public interface WalletService {
 
     void addWalletForClient(WalletDto dto, String individualIcp, String icpFromParam) throws Exception;
 
-    List<WalletDto> getAll();
-
     List<Object> getWalletByIcp(String icp) throws Exception;
 
     void editWallet(WalletDto dto, String icpFromParam) throws Exception;
@@ -24,5 +22,5 @@ public interface WalletService {
 
     void deleteWallet(String uuid, String uuidFromParam) throws Exception;
 
-    void moneyTransfer(MoneyTransferDto dto, Long icp);
+    String moneyTransfer(MoneyTransferDto dto, Long icp);
 }

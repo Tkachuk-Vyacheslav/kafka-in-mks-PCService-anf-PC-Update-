@@ -48,6 +48,11 @@ public interface IndividualRepository extends JpaRepository<Individual, String>{
     @Query("from Individual as indiv join fetch indiv.contacts as cont join fetch cont.phoneNumbers as phnum  where phnum.value = :number")
     Individual findByPhNum(@Param("number") String number);
 
+    //  ищем Optional пользователя по номеру телефона  (джоин из трех таблиц через jpql)
+    @Query("from Individual as indiv join fetch indiv.contacts as cont join fetch cont.phoneNumbers as phnum  where phnum.value = :number")
+    Optional<Individual> findByPhNumOptional(@Param("number") String number);
+
+
     //  ищем uuid passport юзера по icp юзера
     @Query("from RFPassport as passp join fetch passp.individual as indiv where indiv.icp = :icp")
     RFPassport findPassportUuidByIndividIcp(@Param("icp") String icp);
